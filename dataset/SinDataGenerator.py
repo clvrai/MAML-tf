@@ -14,6 +14,7 @@ class dataset(object):
         self.K = K_shots*2
         self.dim_input = 1
         self.dim_output = 1
+        self.name = 'sin'
 
     def resample_task(self, batch_size, verbose):
         self.sample_amplitude = np.random.uniform(CONFIG['amplitude_range'][0],
