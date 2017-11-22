@@ -93,6 +93,7 @@ class MAML(object):
         # Calculate loss on 1 task
         def metastep_graph(inp):
             meta_train_x, meta_train_y, meta_val_x, meta_val_y = inp
+            meta_train_loss_list = []
             meta_val_loss_list = []
 
             weights = self.weights
@@ -102,6 +103,7 @@ class MAML(object):
             # Meta train loss: Calculate gradient
             meta_train_loss = self.loss_fn(meta_train_y, meta_train_output)
             meta_train_loss = tf.reduce_mean(meta_train_loss)
+            meta_train_loss_list.append(meta_train_loss)
             grads = dict(zip(weights.keys(),
                          tf.gradients(meta_train_loss, list(weights.values()))))
             new_weights = dict(zip(weights.keys(),
@@ -125,6 +127,7 @@ class MAML(object):
                                                           is_train=self.is_train)
                 meta_train_loss = self.loss_fn(meta_train_y, meta_train_output)
                 meta_train_loss = tf.reduce_mean(meta_train_loss)
+                meta_train_loss_list.append(meta_train_loss)
                 grads = dict(zip(new_weights.keys(),
                                  tf.gradients(meta_train_loss, list(new_weights.values()))))
                 new_weights = dict(zip(new_weights.keys(),
@@ -139,9 +142,10 @@ class MAML(object):
                 meta_val_loss = tf.reduce_mean(meta_val_loss)
                 meta_val_loss_list.append(meta_val_loss)
 
-            return [meta_train_loss, meta_val_loss_list, meta_train_output, meta_val_output]
+            return [meta_train_loss_list, meta_val_loss_list, meta_train_output, meta_val_output]
 
-        output_dtype = [tf.float32, [tf.float32]*self.num_updates, tf.float32, tf.float32]
+        output_dtype = [[tf.float32]*self.num_updates, [tf.float32]*self.num_updates,
+                        tf.float32, tf.float32]
         # tf.map_fn: map on the list of tensors unpacked from `elems`
         #               on dimension 0 (Task)
         # reture a packed value
@@ -149,11 +153,11 @@ class MAML(object):
                            elems=(self.meta_train_x, self.meta_train_y,
                                   self.meta_val_x, self.meta_val_y),
                            dtype=output_dtype, parallel_iterations=self.batch_size)
-        meta_train_loss, meta_val_losses, meta_train_output, meta_val_output = result
+        meta_train_losses, meta_val_losses, meta_train_output, meta_val_output = result
         self.meta_val_output = meta_val_output
         self.meta_train_output = meta_train_output
-        meta_train_loss = tf.reduce_mean(meta_train_loss)
-        # Only minimize the last final output
+        # Only look at the last final output
+        meta_train_loss = tf.reduce_mean(meta_train_losses[-1])
         meta_val_loss = tf.reduce_mean(meta_val_losses[-1])
 
         # Loss
@@ -184,7 +188,6 @@ class MAML(object):
 
     def evaluate(self, dataset, test_steps, draw, **kwargs):
         if not self.is_train:
-            ipdb.set_trace()
             assert kwargs['restore_checkpoint'] is not None or \
                 kwargs['restore_dir'] is not None
             if kwargs['restore_checkpoint'] is None:
@@ -205,7 +208,7 @@ class MAML(object):
             if not self.is_train and draw:
                 # visualize one by one
                 for am, ph in zip(amplitude, phase):
-                    dataset.visualize(am, ph, inp[:, :self.K, :], output,
+                    dataset.visualize(am, ph, inp[:, self.K:, :], output,
                                       path=os.path.join(draw_dir, '{}.png'.format(step)))
 
             accumulated_val_loss.append(val_loss)
