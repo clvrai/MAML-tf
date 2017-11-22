@@ -1,14 +1,15 @@
 import tensorflow as tf
 
 
-def contruct_layer(inp, activation_fn, reuse, batch_norm, scope):
-    if batch_norm:
+def contruct_layer(inp, activation_fn, reuse, norm, is_train, scope):
+    if norm == 'batch_norm':
         out = tf.contrib.layers.batch_norm(inp, activation_fn=activation_fn,
-                                           reuse=reuse, scope=scope)
-    elif activation_fn:
+                                           reuse=reuse, is_training=is_train,
+                                           scope=scope)
+    elif norm == 'None':
         out = activation_fn(inp)
     else:
-        out = inp
+        ValueError('Can\'t recognize {}'.format(norm))
     return out
 
 

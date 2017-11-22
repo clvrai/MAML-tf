@@ -25,15 +25,15 @@ def construct_weights(dim_input, dim_output):
     return weights
 
 
-def construct_forward(inp, weights, reuse, batch_norm):
+def construct_forward(inp, weights, reuse, norm, is_train):
     h = utils.contruct_layer(tf.matmul(inp, weights['w1']) + weights['b1'],
-                             activation_fn=tf.nn.relu, reuse=reuse,
-                             batch_norm=batch_norm, scope='1')
+                             activation_fn=tf.nn.relu, reuse=reuse, is_train=is_train,
+                             norm=norm, scope='1')
     for i in range(1, CONFIG['num_hidden_layers']):
         w = weights['w'+str(i+1)]
         b = weights['b'+str(i+1)]
         h = utils.contruct_layer(tf.matmul(h, w)+b, activation_fn=tf.nn.relu,
-                                 reuse=reuse, batch_norm=batch_norm,
+                                 reuse=reuse, norm=norm, is_train=is_train,
                                  scope=str(i+1))
     w = weights['w'+str(CONFIG['num_hidden_layers']+1)]
     b = weights['b'+str(CONFIG['num_hidden_layers']+1)]

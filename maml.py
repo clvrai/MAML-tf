@@ -16,7 +16,7 @@ EVAL_FREQ = 1000
 
 class MAML(object):
     def __init__(self, dataset, model_type, loss_type, dim_input, dim_output,
-                 alpha, beta, K, batch_size, is_train, num_updates):
+                 alpha, beta, K, batch_size, is_train, num_updates, norm):
         '''
         model_tpye: choose model tpye for each task, choice: ('fc',)
         loss_type:  choose the form of the objective function
@@ -32,14 +32,16 @@ class MAML(object):
         self.dataset = dataset
         self.alpha = alpha
         self.K = K
+        self.norm = norm
         self.dim_input = dim_input
         self.dim_output = dim_output
         self.batch_size = batch_size
         self.num_updates = num_updates
         self.meta_optimizer = tf.train.AdamOptimizer(beta)
         self.avoid_second_derivative = False
-        self.task_name = 'MAML.{}_{}-shot_{}-updates_{}-batch'.format(dataset.name, self.K,
-                                                                      self.num_updates, self.batch_size)
+        self.task_name = 'MAML.{}_{}-shot_{}-updates_{}-batch_norm-{}'.format(dataset.name, self.K,
+                                                                              self.num_updates, self.batch_size,
+                                                                              self.norm)
         log.infov('Task name: {}'.format(self.task_name))
         # Build placeholder
         self.build_placeholder()
@@ -49,7 +51,7 @@ class MAML(object):
         self.contruct_forward = model.construct_forward
         # Loss function
         self.loss_fn = self.get_loss_fn(loss_type)
-        self.build_graph(dim_input, dim_output, batch_norm=True)
+        self.build_graph(dim_input, dim_output, norm=norm)
         # Misc
         self.summary_dir = os.path.join('log', self.task_name)
         self.checkpoint_dir = os.path.join('checkpoint', self.task_name)
@@ -84,7 +86,7 @@ class MAML(object):
             ValueError("Can't recognize the loss type {}".format(loss_type))
         return loss_fn
 
-    def build_graph(self, dim_input, dim_output, batch_norm):
+    def build_graph(self, dim_input, dim_output, norm):
 
         self.weights = self.construct_weights(dim_input, dim_output)
 
@@ -95,8 +97,8 @@ class MAML(object):
 
             weights = self.weights
             meta_train_output = self.contruct_forward(meta_train_x, weights,
-                                                      reuse=False,
-                                                      batch_norm=batch_norm)
+                                                      reuse=False, norm=norm,
+                                                      is_train=self.is_train)
             # Meta train loss: Calculate gradient
             meta_train_loss = self.loss_fn(meta_train_y, meta_train_output)
             meta_train_loss = tf.reduce_mean(meta_train_loss)
@@ -107,9 +109,11 @@ class MAML(object):
                                 for key in weights.keys()]))
             if self.avoid_second_derivative:
                 new_weights = tf.stop_gradients(new_weights)
+            # Not sure:
+            # meta_val -> evaluation: set the training flags to False
             meta_val_output = self.contruct_forward(meta_val_x, new_weights,
-                                                    reuse=True,
-                                                    batch_norm=batch_norm)
+                                                    reuse=True, norm=norm,
+                                                    is_train=self.is_train)
             # Meta val loss: Calculate loss (meta step)
             meta_val_loss = self.loss_fn(meta_val_y, meta_val_output)
             meta_val_loss = tf.reduce_mean(meta_val_loss)
@@ -117,8 +121,8 @@ class MAML(object):
             # If perform multiple updates
             for _ in range(self.num_updates-1):
                 meta_train_output = self.contruct_forward(meta_train_x, new_weights,
-                                                          reuse=True,
-                                                          batch_norm=batch_norm)
+                                                          reuse=True, norm=norm,
+                                                          is_train=self.is_train)
                 meta_train_loss = self.loss_fn(meta_train_y, meta_train_output)
                 meta_train_loss = tf.reduce_mean(meta_train_loss)
                 grads = dict(zip(new_weights.keys(),
@@ -129,8 +133,8 @@ class MAML(object):
                 if self.avoid_second_derivative:
                     new_weights = tf.stop_gradients(new_weights)
                 meta_val_output = self.contruct_forward(meta_val_x, new_weights,
-                                                        reuse=True,
-                                                        batch_norm=batch_norm)
+                                                        reuse=True, norm=norm,
+                                                        is_train=self.is_train)
                 meta_val_loss = self.loss_fn(meta_val_y, meta_val_output)
                 meta_val_loss = tf.reduce_mean(meta_val_loss)
                 meta_val_loss_list.append(meta_val_loss)
@@ -178,12 +182,17 @@ class MAML(object):
             if step % EVAL_FREQ == 0:
                 self.evaluate(dataset, 100, False)
 
-    def evaluate(self, dataset, test_steps, draw):
+    def evaluate(self, dataset, test_steps, draw, **kwargs):
         if not self.is_train:
-            restore_model_path = tf.train.latest_checkpoint(self.checkpoint_dir)
-            assert restore_model_path is not None
-            self.saver.restore(self.sess, restore_model_path)
-            log.infov('Load model: {}'.format(restore_model_path))
+            ipdb.set_trace()
+            assert kwargs['restore_checkpoint'] is not None or \
+                kwargs['restore_dir'] is not None
+            if kwargs['restore_checkpoint'] is None:
+                restore_checkpoint = tf.train.latest_checkpoint(kwargs['restore_dir'])
+            else:
+                restore_checkpoint = kwargs['restore_checkpoint']
+            self.saver.restore(self.sess, restore_checkpoint)
+            log.infov('Load model: {}'.format(restore_checkpoint))
             if draw:
                 draw_dir = os.path.join('vis', self.task_name)
                 if not os.path.exists(draw_dir):
