@@ -1,5 +1,4 @@
 import argparse
-import ipdb
 
 from maml import MAML
 
@@ -14,12 +13,14 @@ def argsparser():
     parser.add_argument('--model_type', type=str, default='fc')
     parser.add_argument('--loss_type', type=str, default='MSE')
     # Train
+    parser.add_argument('--is_train', action='store_true', default=False)
     parser.add_argument('--max_steps', type=int, default=7e4)
     parser.add_argument('--alpha', type=float, default=1e-3)
     parser.add_argument('--beta', type=float, default=1e-3)
     parser.add_argument('--batch_size', type=int, default=25)
     # Test
     parser.add_argument('--test_sample', type=int, default=100)
+    parser.add_argument('--draw', action='store_true', default=False)
     args = parser.parse_args()
     return args
 
@@ -42,10 +43,12 @@ def main(args):
                 args.alpha,
                 args.beta,
                 args.K,
-                args.batch_size
+                args.batch_size,
+                args.is_train
                 )
-    finn.learn(args.batch_size, dataset, args.max_steps)
-    finn.test(dataset, args.test_sample)
+    if args.is_train:
+        finn.learn(args.batch_size, dataset, args.max_steps)
+    finn.evaluate(dataset, args.test_sample, draw=args.draw)
 
 if __name__ == '__main__':
     args = argsparser()

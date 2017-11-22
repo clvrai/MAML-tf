@@ -1,5 +1,6 @@
 import ipdb
 import os
+from tqdm import tqdm
 
 import tensorflow as tf
 
@@ -9,10 +10,12 @@ from loginfo import log
 # global variables for MAML
 LOG_FREQ = 100
 SAVE_FREQ = 1000
+EVAL_FREQ = 1000
 
 
 class MAML(object):
-    def __init__(self, dataset, model_type, loss_type, dim_input, dim_output, alpha, beta, K, batch_size):
+    def __init__(self, dataset, model_type, loss_type, dim_input, dim_output,
+                 alpha, beta, K, batch_size, is_train):
         '''
         model_tpye: choose model tpye for each task, choice: ('fc',)
         loss_type:  choose the form of the objective function
@@ -24,6 +27,7 @@ class MAML(object):
         batch_size: number of tasks sampled in each iteration
         '''
         self.sess = utils.get_session(1)
+        self.is_train = is_train
         self.dataset = dataset
         self.alpha = alpha
         self.K = K
@@ -47,10 +51,12 @@ class MAML(object):
         if not os.path.exists(self.summary_dir):
             os.makedirs(self.summary_dir)
         self.writer = tf.summary.FileWriter(self.summary_dir, self.sess.graph)
-        self.checkpoint_dir = 'checkpoint'
+        self.checkpoint_dir = os.path.join('checkpoint', self.task_name)
         if not os.path.exists(self.checkpoint_dir):
             os.makedirs(self.checkpoint_dir)
         self.saver = tf.train.Saver(max_to_keep=10)
+        log.infov("Initialize all variables")
+        self.sess.run(tf.global_variables_initializer())
 
     def build_placeholder(self):
         self.meta_train_x = tf.placeholder(tf.float32)
@@ -111,6 +117,8 @@ class MAML(object):
                                   self.meta_val_x, self.meta_val_y),
                            dtype=output_dtype, parallel_iterations=self.batch_size)
         meta_train_loss, meta_val_loss, meta_train_output, meta_val_output = result
+        self.meta_val_output = meta_val_output
+        self.meta_train_output = meta_train_output
         meta_train_loss = tf.reduce_mean(meta_train_loss)
         meta_val_loss = tf.reduce_mean(meta_val_loss)
 
@@ -125,19 +133,20 @@ class MAML(object):
         self.summary_op = tf.summary.merge_all()
 
     def learn(self, batch_size, dataset, max_steps):
-        self.sess.run(tf.global_variables_initializer())
         for step in range(int(max_steps)):
             meta_val_loss, meta_train_loss = self.single_train_step(dataset, batch_size, step)
             if step % LOG_FREQ == 0:
-                log.infov("Meta train loss: {:.4f}, Meta val loss: {:.4f}".format(
-                    meta_train_loss, meta_val_loss))
+                log.info("Step: {}/{}, Meta train loss: {:.4f}, Meta val loss: {:.4f}".format(
+                    step, int(max_steps), meta_train_loss, meta_val_loss))
             if step % SAVE_FREQ == 0:
                 log.infov("Save checkpoint-{}".format(step))
-                self.saver.save(self.sess, os.path.join(self.checkpoint_dir, self.task_name),
+                self.saver.save(self.sess, os.path.join(self.checkpoint_dir, 'checkpoint'),
                                 global_step=step)
+            if step % EVAL_FREQ == 0:
+                self.evaluate(dataset, 100, False)
 
     def single_train_step(self, dataset, batch_size, step):
-        batch_input, batch_target = dataset.get_batch(batch_size, resample=True)
+        batch_input, batch_target, _, _ = dataset.get_batch(batch_size, resample=True)
         feed_dict = {self.meta_train_x: batch_input[:, :self.K, :],
                      self.meta_train_y: batch_target[:, :self.K, :],
                      self.meta_val_x: batch_input[:, self.K:, :],
@@ -149,5 +158,42 @@ class MAML(object):
         self.writer.add_summary(summary_str, step)
         return meta_val_loss, meta_train_loss
 
-    def test(self, dataset, max_steps):
-        ipdb.set_trace()
+    def evaluate(self, dataset, test_steps, draw):
+        if not self.is_train:
+            restore_model_path = tf.train.latest_checkpoint(self.checkpoint_dir)
+            assert restore_model_path is not None
+            self.saver.restore(self.sess, restore_model_path)
+            log.infov('Load model: {}'.format(restore_model_path))
+            if draw:
+                draw_dir = os.path.join('vis', self.task_name)
+                if not os.path.exists:
+                    os.makedirs(draw_dir)
+        accumulated_val_loss = []
+        accumulated_train_loss = []
+        for step in tqdm(range(test_steps)):
+            output, val_loss, train_loss, amplitude, phase, inp = \
+                self.single_test_step(dataset, 1)
+            if not self.is_train and draw:
+                # visualize
+                for am, ph in zip(amplitude, phase):
+                    dataset.visualize(am, ph, inp, output,
+                                      path=os.path.join(draw_dir, '{}.png'.format(step)))
+
+            accumulated_val_loss.append(val_loss)
+            accumulated_train_loss.append(train_loss)
+        val_loss_mean = sum(accumulated_val_loss)/test_steps
+        train_loss_mean = sum(accumulated_train_loss)/test_steps
+        log.infov("[Evaluate] Meta train loss: {:.4f}, Meta val loss: {:.4f}".format(
+            train_loss_mean, val_loss_mean))
+
+    def single_test_step(self, dataset, batch_size):
+        batch_input, batch_target, amplitude, phase = dataset.get_batch(batch_size, resample=True)
+        feed_dict = {self.meta_train_x: batch_input[:, :self.K, :],
+                     self.meta_train_y: batch_target[:, :self.K, :],
+                     self.meta_val_x: batch_input[:, self.K:, :],
+                     self.meta_val_y: batch_target[:, self.K:, :]}
+        meta_val_output, meta_val_loss, meta_train_loss = \
+            self.sess.run([self.meta_val_output, self.meta_val_loss,
+                           self.meta_train_loss],
+                          feed_dict)
+        return meta_val_output, meta_val_loss, meta_train_loss, amplitude, phase, batch_input
