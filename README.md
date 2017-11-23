@@ -44,6 +44,16 @@ Details about the evaluation FLAGs (some are overlapped with training)
 
 ## Results
 
+### Regression
+Model trained on: 10-shots, 1 updates, batch_size=25, without batch normalization
+
+|   | L2 loss | Sampled results|
+|---|---|---|
+| 5-shots, update=5 | 0.3024  | misc/MAML.sin_10-shot_10-updates_25-batch_norm-None/1.png |
+| 5-shots, update=10 | 0.2714  | misc/MAML.sin_10-shot_5-updates_25-batch_norm-None/1.png |
+| 10-shots, update=5 | 0.2024  | misc/MAML.sin_5-shot_10-updates_25-batch_norm-None/1.png |
+| 10-shots, update=10 | 0.1903  | misc/MAML.sin_5-shot_5-updates_25-batch_norm-None/1.png |
+
 ## What's inside the training?
 
 ### Tricks
