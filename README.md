@@ -1,7 +1,5 @@
 # MAML-tf
-Implementation of MAML in Tensorflow
 
-## Introduction
 
 ## Prerequisites
 - Python==2.7
@@ -47,12 +45,10 @@ Details about the evaluation FLAGs (some are overlapped with training)
 ### Regression
 Model trained on: 10-shots, 1 updates, batch_size=25, without batch normalization
 
-|   | L2 loss | Sampled results|
-|---|---|---|
-| 5-shots, update=5 | 0.3024  | misc/MAML.sin_10-shot_10-updates_25-batch_norm-None/1.png |
-| 5-shots, update=10 | 0.2714  | misc/MAML.sin_10-shot_5-updates_25-batch_norm-None/1.png |
-| 10-shots, update=5 | 0.2024  | misc/MAML.sin_5-shot_10-updates_25-batch_norm-None/1.png |
-| 10-shots, update=10 | 0.1903  | misc/MAML.sin_5-shot_5-updates_25-batch_norm-None/1.png |
+|   | L2 loss | Results (updates=1)| Results (updates=5)| Results (updates=10)|
+|---|---|---|---|---|
+| 5-shots, update=5 | 0.3024  | <img src='misc/MAML.sin_5-shot_1-updates_25-batch_norm-None/1.png' width=300> |<img src='misc/MAML.sin_5-shot_5-updates_25-batch_norm-None/1.png' width=300> |<img src='misc/MAML.sin_5-shot_10-updates_25-batch_norm-None/1.png' width=300> |
+| 10-shots, update=5 | 0.2024  | <img src='misc/MAML.sin_10-shot_1-updates_25-batch_norm-None/1.png' width=300> |<img src='misc/MAML.sin_10-shot_5-updates_25-batch_norm-None/1.png' width=300> |<img src='misc/MAML.sin_10-shot_10-updates_25-batch_norm-None/1.png' width=300> |
 
 ## What's inside the training?
 
