@@ -1,6 +1,7 @@
 *.pyc
 *.swp
 .ropeproject
+__pycache__/
 log/
 checkpoint/
 vis/
