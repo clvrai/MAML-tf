@@ -69,8 +69,6 @@ for more regression results: check [here](misc/result_regression.md)
 ### Tricks
 
 ## Related Work and Reference
-[1] Matching Networks for One Shot Learning
-
-[2] Optimization as a Model for Few-Shot Learning
-
-[3] Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks
+- [1] Matching Networks for One Shot Learning
+- [2] Optimization as a Model for Few-Shot Learning
+- [3] Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks
