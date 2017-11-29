@@ -1,5 +1,17 @@
 # MAML-tf
 
+## Introduction
+
+Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks (MAML) aims to learn the representation that is able to adapt to new environments/goals/tasks in few shots. Many recent work on few-shot learning rely on **meta-learning**[1,2]. Following the mainstream of previous work, MAML proposed a general meta-learning method for few-shot learning and conduct experiments on regression, classificaiton, RL problems. 
+
+The main idea of MAML is to minimize the N-step loss, instead of the current loss. It splits the training set into meta-train and meta-val, where meta-train is used to calculate the gradients and meta-val is used to calculate the losses. We use the losses from the meta-val to optimize the network.
+
+The following figure is the pseudocode for MAML:
+
+<img src="misc/algo.png" width=500 align="middle">
+
+In each itetaion, we sample a batch of tasks and split it into meta-train and meta-val. For K-shot learning, we sample K example(s) in the meta-train. We will compute $\theta_{i}$ for each task using meta-train and compute the losses using meta-val. At the end of each iteration, we will minimize the **sum of losses from meta-val**.
+
 
 ## Prerequisites
 - Python==2.7
@@ -57,4 +69,8 @@ for more regression results: check [here](misc/result_regression.md)
 ### Tricks
 
 ## Related Work and Reference
-- Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks
+[1] Matching Networks for One Shot Learning
+
+[2] Optimization as a Model for Few-Shot Learning
+
+[3] Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks
