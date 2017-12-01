@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn
-import ipdb
 
 CONFIG = {
     'amplitude_range': [0.1, 5.0],

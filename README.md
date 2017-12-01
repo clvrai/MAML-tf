@@ -67,6 +67,7 @@ for more regression results: check [here](misc/result_regression.md)
 ## What's inside the training?
 
 ### Tricks
+For regression, don't use batch normalization if the `K` is too small.
 
 ## Related Work and Reference
 - [1] Matching Networks for One Shot Learning

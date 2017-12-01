@@ -1,4 +1,3 @@
-import ipdb
 import os
 from tqdm import tqdm
 
@@ -111,8 +110,6 @@ class MAML(object):
                                 for key in weights.keys()]))
             if self.avoid_second_derivative:
                 new_weights = tf.stop_gradients(new_weights)
-            # Not sure:
-            # meta_val -> evaluation: set the training flags to False
             meta_val_output = self.contruct_forward(meta_val_x, new_weights,
                                                     reuse=True, norm=norm,
                                                     is_train=self.is_train)
