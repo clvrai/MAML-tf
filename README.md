@@ -8,13 +8,13 @@ This project is implemented by [Andrew Liao](https://github.com/andrewliao11) an
 
 Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks (MAML) aims to learn the representation that is able to adapt to new environments/goals/tasks in a few shots. Many recent work on few-shot learning rely on **meta-learning**[1,2]. Following the mainstream of previous work, MAML proposed a general meta-learning framework for few-shot learning and conducted experiments on regression, classificaiton, and reinforcement learning problems. 
 
-<img src="misc/model-figure.png" width=500 align="middle">
+<p align="center"><img src="misc/model-figure.png" width=500></p>
 
 The main idea of MAML is to minimize the number of gradient updates required to adapt to any new tasks. In other words, MAML tries to find parameters that can easily and quickly adapt to all tasks. In each iteration, a batch of tasks are sampled and data of each sampled task is splitted into meta-train and meta-val. For K-shot learning, we sample K example(s) from the meta-train. A meta network $\theta$ is trained for each task *i* using mata-train. Hence, we can get $\theta_{i}$ for each task *i* which simulates one-shot (few-shot) learning for the task *i*. Then, the meta loss for taks *i* is computed using $\theta_{i}$ with meta-val. At the end of each iteration, the parameters are updated to minimize the **sum of losses from all taks**.
 
 The following figure is the pseudocode of MAML:
 
-<img src="misc/algo.png" width=500 align="middle">
+<p align="center"><img src="misc/algo.png" width=500></p>
 
 
 ## Prerequisites
@@ -67,7 +67,8 @@ Model trained on: 10-shots, 1 updates, batch_size=25, without batch normalizatio
 | 5-shots | 0.3024  | <img src='misc/MAML.sin_5-shot_1-updates_25-batch_norm-None/11.png' width=300> |<img src='misc/MAML.sin_5-shot_5-updates_25-batch_norm-None/11.png' width=300> |<img src='misc/MAML.sin_5-shot_10-updates_25-batch_norm-None/11.png' width=300> |
 | 10-shots | 0.2024  | <img src='misc/MAML.sin_10-shot_1-updates_25-batch_norm-None/11.png' width=300> |<img src='misc/MAML.sin_10-shot_5-updates_25-batch_norm-None/11.png' width=300> |<img src='misc/MAML.sin_10-shot_10-updates_25-batch_norm-None/11.png' width=300> |
 
-for more regression results: check [here](misc/result_regression.md)
+
+For more regression results: check [here](misc/result_regression.md)
 
 ## What's inside the training?
 
