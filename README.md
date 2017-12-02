@@ -20,8 +20,12 @@ The following figure is the pseudocode of MAML:
 ## Prerequisites
 - Python==2.7
 - Tensorflow==1.4.0
+- matplotlib==2.1.0
+- numpy==1.13.3
+- tqdm==4.19.4
+- colorlog==3.1.0
 
-## Usage 
+## Usage
 
 ### Regression
 

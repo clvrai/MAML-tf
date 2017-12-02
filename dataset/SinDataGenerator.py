@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn
 
 CONFIG = {
     'amplitude_range': [0.1, 5.0],
