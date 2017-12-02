@@ -1,16 +1,20 @@
-# MAML-tf
+# MAML implementation in Tensorflow
 
-## Introduction
+As part of the implementation series of [Joseph Lim's group at USC](http://csail.mit.edu/~lim), our motivation is to accelerate (or sometimes delay) research in the AI community by promoting open-source projects. To this end, we implement state-of-the-art research papers, and publicly share them with concise reports. Please visit [our group github site](https://github.com/gitlimlab) for other projects.
 
-Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks (MAML) aims to learn the representation that is able to adapt to new environments/goals/tasks in few shots. Many recent work on few-shot learning rely on **meta-learning**[1,2]. Following the mainstream of previous work, MAML proposed a general meta-learning method for few-shot learning and conduct experiments on regression, classificaiton, RL problems. 
+This project is implemented by [Andrew Liao](https://github.com/andrewliao11) and the codes have been reviewed by [Youngwoon Lee](https://github.com/youngwoon) before being published.
 
-The main idea of MAML is to minimize the N-step loss, instead of the current loss. It splits the training set into meta-train and meta-val, where meta-train is used to calculate the gradients and meta-val is used to calculate the losses. We use the losses from the meta-val to optimize the network.
+## Description
 
-The following figure is the pseudocode for MAML:
+Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks (MAML) aims to learn the representation that is able to adapt to new environments/goals/tasks in a few shots. Many recent work on few-shot learning rely on **meta-learning**[1,2]. Following the mainstream of previous work, MAML proposed a general meta-learning framework for few-shot learning and conducted experiments on regression, classificaiton, and reinforcement learning problems. 
+
+<img src="misc/model-figure.png" width=500 align="middle">
+
+The main idea of MAML is to minimize the number of gradient updates required to adapt to any new tasks. In other words, MAML tries to find parameters that can easily and quickly adapt to all tasks. In each iteration, a batch of tasks are sampled and data of each sampled task is splitted into meta-train and meta-val. For K-shot learning, we sample K example(s) from the meta-train. A meta network $\theta$ is trained for each task *i* using mata-train. Hence, we can get $\theta_{i}$ for each task *i* which simulates one-shot (few-shot) learning for the task *i*. Then, the meta loss for taks *i* is computed using $\theta_{i}$ with meta-val. At the end of each iteration, the parameters are updated to minimize the **sum of losses from all taks**.
+
+The following figure is the pseudocode of MAML:
 
 <img src="misc/algo.png" width=500 align="middle">
-
-In each itetaion, we sample a batch of tasks and split it into meta-train and meta-val. For K-shot learning, we sample K example(s) in the meta-train. We will compute $\theta_{i}$ for each task using meta-train and compute the losses using meta-val. At the end of each iteration, we will minimize the **sum of losses from meta-val**.
 
 
 ## Prerequisites
@@ -35,6 +39,7 @@ Details about the training FLAGs
 --norm: use batch_norm or not
 --alpha: learning rate for meta-train (same notation as the paper)
 --beta: learning rate for meta-val (same notation as the paper)
+--is_train: speficy a training phase
 ```
 
 Evalaute the model (either specify the directory of the checkpoint or the checkpoint itself):
@@ -67,7 +72,7 @@ for more regression results: check [here](misc/result_regression.md)
 ## What's inside the training?
 
 ### Tricks
-For regression, don't use batch normalization if the `K` is too small.
+For regression, don't use batch normalization if the `K` is small (e.g., less than 10).
 
 ## Related Work and Reference
 - [1] Matching Networks for One Shot Learning
