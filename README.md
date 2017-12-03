@@ -68,7 +68,7 @@ Model trained on: 10-shots, 1 updates, batch_size=25, without batch normalizatio
 
 |   | L2 loss | Results (updates=1)| Results (updates=5)| Results (updates=10)|
 |---|---|---|---|---|
-| 5-shots | 0.3024  | <img src='misc/MAML.sin_5-shot_1-updates_25-batch_norm-None/11.png' width=300> |<img src='misc/MAML.sin_5-shot_5-updates_25-batch_norm-None/11.png' width=300> |<img src='misc/MAML.sin_5-shot_10-updates_25-batch_norm-None/11.png' width=300> |
+| 5-shots | 0.3024  | <img src='misc/MAML.sin_5-shot_1-updates_25-batch_norm-None/1.png' width=300> |<img src='misc/MAML.sin_5-shot_5-updates_25-batch_norm-None/1.png' width=300> |<img src='misc/MAML.sin_5-shot_10-updates_25-batch_norm-None/1.png' width=300> |
 | 10-shots | 0.2024  | <img src='misc/MAML.sin_10-shot_1-updates_25-batch_norm-None/11.png' width=300> |<img src='misc/MAML.sin_10-shot_5-updates_25-batch_norm-None/11.png' width=300> |<img src='misc/MAML.sin_10-shot_10-updates_25-batch_norm-None/11.png' width=300> |
 
 
