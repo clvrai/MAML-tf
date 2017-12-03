@@ -12,32 +12,32 @@ CONFIG = {
 class dataset(object):
     def __init__(self, K_shots=5):
         # K for meta train, and another K for meta val
-        self.K = K_shots*2
+        self._K = K_shots*2
         self.dim_input = 1
         self.dim_output = 1
         self.name = 'sin'
 
-    def resample_task(self, batch_size, verbose):
-        self.sample_amplitude = np.random.uniform(CONFIG['amplitude_range'][0],
-                                                  CONFIG['amplitude_range'][1], batch_size)
-        self.sample_phase = np.random.uniform(CONFIG['phase_range'][0],
-                                              CONFIG['phase_range'][1], batch_size)
+    def _resample_task(self, batch_size, verbose):
+        self._sample_amplitude = np.random.uniform(CONFIG['amplitude_range'][0],
+                                                   CONFIG['amplitude_range'][1], batch_size)
+        self._sample_phase = np.random.uniform(CONFIG['phase_range'][0],
+                                               CONFIG['phase_range'][1], batch_size)
         # Match the shape of input
-        self.sample_amplitude_tile = np.tile(self.sample_amplitude, [self.K, self.dim_input, 1])
-        self.sample_amplitude_tile = np.transpose(self.sample_amplitude_tile, [2, 0, 1])
-        self.sample_phase_tile = np.tile(self.sample_phase, [self.K, self.dim_input, 1])
-        self.sample_phase_tile = np.transpose(self.sample_phase_tile, [2, 0, 1])
+        self._sample_amplitude_tile = np.tile(self._sample_amplitude, [self._K, self.dim_input, 1])
+        self._sample_amplitude_tile = np.transpose(self._sample_amplitude_tile, [2, 0, 1])
+        self._sample_phase_tile = np.tile(self._sample_phase, [self._K, self.dim_input, 1])
+        self._sample_phase_tile = np.transpose(self._sample_phase_tile, [2, 0, 1])
         if verbose:
-            print("Mean of the amplitude", np.mean(self.sample_amplitude))
-            print("Mean of the phase", np.mean(self.sample_phase))
+            print("Mean of the amplitude", np.mean(self._sample_amplitude))
+            print("Mean of the phase", np.mean(self._sample_phase))
 
     def get_batch(self, batch_size, resample=False, verbose=False):
         if resample:
-            self.resample_task(batch_size, verbose)
+            self._resample_task(batch_size, verbose)
         x = np.random.uniform(CONFIG['x_range'][0], CONFIG['x_range'][1],
-                              [batch_size, self.K, self.dim_input])
-        y = self.sample_amplitude_tile*np.sin(x - self.sample_phase_tile)
-        return x, y, self.sample_amplitude, self.sample_phase
+                              [batch_size, self._K, self.dim_input])
+        y = self._sample_amplitude_tile*np.sin(x - self._sample_phase_tile)
+        return x, y, self._sample_amplitude, self._sample_phase
 
     def visualize(self, amplitude, phase, inp, output, path):
         inp = np.squeeze(inp)

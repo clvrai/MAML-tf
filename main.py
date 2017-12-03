@@ -42,24 +42,25 @@ def get_dataset(dataset_name, K_shots):
 def main(args):
     np.random.seed(args.seed)
     dataset = get_dataset(args.dataset, args.K)
-    finn = MAML(dataset,
-                args.model_type,
-                args.loss_type,
-                dataset.dim_input,
-                dataset.dim_output,
-                args.alpha,
-                args.beta,
-                args.K,
-                args.batch_size,
-                args.is_train,
-                args.num_updates,
-                args.norm
-                )
+    model = MAML(dataset,
+                 args.model_type,
+                 args.loss_type,
+                 dataset.dim_input,
+                 dataset.dim_output,
+                 args.alpha,
+                 args.beta,
+                 args.K,
+                 args.batch_size,
+                 args.is_train,
+                 args.num_updates,
+                 args.norm
+                 )
     if args.is_train:
-        finn.learn(args.batch_size, dataset, args.max_steps)
-    finn.evaluate(dataset, args.test_sample, args.draw,
-                  restore_checkpoint=args.restore_checkpoint,
-                  restore_dir=args.restore_dir)
+        model.learn(args.batch_size, dataset, args.max_steps)
+    else:
+        model.evaluate(dataset, args.test_sample, args.draw,
+                       restore_checkpoint=args.restore_checkpoint,
+                       restore_dir=args.restore_dir)
 
 if __name__ == '__main__':
     args = argsparser()
