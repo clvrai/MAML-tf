@@ -21,12 +21,12 @@ Note that this implementation may differ in details from the original paper such
 *This code is still being developed and subject to change.
 
 ## Prerequisites
-- Python==2.7
-- [Tensorflow](https://github.com/tensorflow/tensorflow/tree/r1.4)==1.4.0
-- matplotlib==2.1.0
-- [NumPy](http://www.numpy.org/)==1.13.3
-- tqdm==4.19.4
-- [colorlog](https://github.com/borntyping/python-colorlog)==3.1.0
+- Python 2.7
+- [Tensorflow 1.4.0](https://github.com/tensorflow/tensorflow/tree/r1.4)
+- matplotlib 2.1.0
+- [NumPy](http://www.numpy.org/) 1.13.3
+- tqdm 4.19.4
+- [colorlog](https://github.com/borntyping/python-colorlog) 3.1.0
 
 ## Usage
 
@@ -83,7 +83,7 @@ For more regression results: check [here](misc/result_regression.md)
 ### Tricks
 For regression, don't use batch normalization if the `K` is small (e.g., less than 10).
 
-## Related Work and Reference
+## References
 - [1] Matching Networks for One Shot Learning
 - [2] Optimization as a Model for Few-Shot Learning
 - [3] Model-Agnostic Meta-Learning for Fast Adaptation of Deep Networks
