@@ -22,11 +22,11 @@ Note that this implementation may differ in details from the original paper such
 
 ## Prerequisites
 - Python==2.7
-- Tensorflow==1.4.0
+- [Tensorflow](https://github.com/tensorflow/tensorflow/tree/r1.4)==1.4.0
 - matplotlib==2.1.0
-- numpy==1.13.3
+- [NumPy](http://www.numpy.org/)==1.13.3
 - tqdm==4.19.4
-- colorlog==3.1.0
+- [colorlog](https://github.com/borntyping/python-colorlog)==3.1.0
 
 ## Usage
 
