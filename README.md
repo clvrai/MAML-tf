@@ -2,7 +2,7 @@
 
 As part of the implementation series of [Joseph Lim's group at USC](http://csail.mit.edu/~lim), our motivation is to accelerate (or sometimes delay) research in the AI community by promoting open-source projects. To this end, we implement state-of-the-art research papers, and publicly share them with concise reports. Please visit [our group github site](https://github.com/gitlimlab) for other projects.
 
-This project is implemented by [Andrew Liao](https://github.com/andrewliao11) and the codes have been reviewed by [Youngwoon Lee](https://github.com/youngwoon) before being published.
+This project is implemented by [Yuan-Hong Liao](https://github.com/andrewliao11) and the codes have been reviewed by [Youngwoon Lee](https://github.com/youngwoon) before being published.
 
 ## Description
 
@@ -16,6 +16,9 @@ The following figure is the pseudocode of MAML:
 
 <p align="center"><img src="misc/algo.png" width=500></p>
 
+Note that this implementation may differ in details from the original paper such as model architectures, hyperparameters, applied optimizer, etc. while maintaining the main proposed idea.
+
+*This code is still being developed and subject to change.
 
 ## Prerequisites
 - Python==2.7
